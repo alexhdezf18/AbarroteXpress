@@ -1,19 +1,34 @@
 version: "3.8"
 
 services:
-  postgres-db:
-    image: postgis/postgis:15-3.3-alpine
-    platform: linux/amd64
-    container_name: abarrote_xpress_db
+  postgres:
+    image: postgres:15-alpine
+    container_name: abarrote_db
     environment:
-      - POSTGRES_USER=postgres
-      - POSTGRES_PASSWORD=password
-      - POSTGRES_DB=abarrote_db
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: password
+      POSTGRES_DB: abarrote_db
     ports:
       - "5432:5432"
     volumes:
-      - abarrote_pg_data:/var/lib/postgresql/data
-    restart: always
+      - pgdata:/var/lib/postgresql/data
+
+  backend:
+    build: .
+    container_name: abarrote_backend
+    ports:
+      - "3000:3000"
+    environment:
+      - DB_HOST=postgres
+      - DB_PORT=5432
+      - DB_USER=postgres
+      - DB_PASSWORD=password
+      - DB_NAME=abarrote_db
+      - META_TOKEN=${META_TOKEN}
+      - PHONE_NUMBER_ID=${PHONE_NUMBER_ID}
+      - WEBHOOK_VERIFY_TOKEN=AbarroteXpress2026
+    depends_on:
+      - postgres
 
 volumes:
-  abarrote_pg_data:
+  pgdata:

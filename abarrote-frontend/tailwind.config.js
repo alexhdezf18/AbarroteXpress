@@ -1,11 +1,11 @@
 /** @type {import('tailwindcss').Config} */
 module.exports = {
-  content: ["./src/**/*.{html,ts}"],
+  content: ['./src/**/*.{html,ts}'],
   theme: {
     extend: {
       colors: {
-        "marca-verde": "#10b981",
-        "marca-oscuro": "#1f2937",
+        'marca-verde': '#10b981',
+        'marca-oscuro': '#1f2937',
       },
     },
   },
