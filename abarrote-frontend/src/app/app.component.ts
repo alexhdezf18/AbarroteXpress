@@ -4,6 +4,8 @@ import { FormsModule } from '@angular/forms';
 import { PedidosService } from './pedidos.service';
 import { ProductosService } from './productos.service';
 import { trigger, style, transition, animate } from '@angular/animations';
+import jsPDF from 'jspdf';
+import autoTable from 'jspdf-autotable';
 
 @Component({
   selector: 'app-root',
@@ -248,12 +250,29 @@ import { trigger, style, transition, animate } from '@angular/animations';
                     >
                       Preparar
                     </button>
+
                     <button
                       *ngIf="pedido.estado === 'preparacion'"
                       (click)="cambiarEstado(pedido, 'en_camino')"
                       class="bg-emerald-500 text-white px-4 py-2 rounded-lg text-sm font-semibold hover:bg-emerald-600 shadow-sm transition-all"
                     >
                       Despachar
+                    </button>
+
+                    <button
+                      *ngIf="pedido.estado === 'en_camino'"
+                      (click)="imprimirTicket(pedido)"
+                      class="bg-slate-800 text-white px-4 py-2 rounded-lg text-sm font-semibold hover:bg-slate-900 shadow-sm transition-all flex items-center gap-1.5"
+                    >
+                      <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path
+                          stroke-linecap="round"
+                          stroke-linejoin="round"
+                          stroke-width="2"
+                          d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"
+                        ></path>
+                      </svg>
+                      PDF
                     </button>
                   </div>
                 </div>
@@ -449,6 +468,28 @@ export class AppComponent implements OnInit {
     this.pedidosService
       .actualizarEstado(pedido.id, nuevoEstado)
       .subscribe(() => (pedido.estado = nuevoEstado));
+  }
+
+  imprimirTicket(pedido: any) {
+    const doc = new jsPDF();
+
+    doc.setFontSize(22);
+    doc.text('AbarroteXpress', 105, 20, { align: 'center' });
+
+    doc.setFontSize(12);
+    doc.text(`Ticket de Compra - ${new Date().toLocaleDateString()}`, 105, 30, { align: 'center' });
+    doc.text(`Teléfono Cliente: ${pedido.clienteTelefono}`, 14, 45);
+    doc.text(`Estado: Despachado`, 14, 52);
+
+    autoTable(doc, {
+      startY: 60,
+      head: [['Producto', 'Cantidad', 'Total']],
+      body: [[pedido.productoNombre, '1', `$${pedido.totalCosto}`]],
+      theme: 'grid',
+      headStyles: { fillColor: [79, 70, 229] },
+    });
+
+    doc.save(`ticket_${pedido.clienteTelefono}.pdf`);
   }
 
   guardarProducto() {
