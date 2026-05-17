@@ -25,6 +25,9 @@ services:
       - META_TOKEN=${META_TOKEN}
       - PHONE_NUMBER_ID=${PHONE_NUMBER_ID}
       - WEBHOOK_VERIFY_TOKEN=AbarroteXpress2026
+      - JWT_SECRET=${JWT_SECRET}
+      - ADMIN_EMAIL=${ADMIN_EMAIL}
+      - ADMIN_PASSWORD=${ADMIN_PASSWORD}
     depends_on:
       - postgres
 
