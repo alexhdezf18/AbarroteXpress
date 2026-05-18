@@ -9,20 +9,15 @@ import { AuthService } from '../auth.service';
   standalone: true,
   imports: [CommonModule, FormsModule, RouterLink],
   template: `
-    <div class="min-h-screen bg-gradient-to-br from-slate-900 via-indigo-950 to-slate-900 flex items-center justify-center p-4">
+    <div class="min-h-screen bg-gradient-to-br from-marca-oscuro via-indigo-800 to-marca-oscuro flex items-center justify-center p-4">
       <div class="w-full max-w-md">
 
         <!-- Logo -->
         <div class="text-center mb-8">
-          <div class="inline-flex items-center gap-3 mb-2">
-            <div class="w-12 h-12 bg-indigo-600 rounded-xl flex items-center justify-center shadow-lg">
-              <svg class="w-7 h-7 text-white" fill="currentColor" viewBox="0 0 24 24">
-                <path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5" />
-              </svg>
-            </div>
-            <span class="text-3xl font-bold text-white tracking-tight">AbarroteXpress</span>
+          <div class="bg-white rounded-2xl p-5 inline-block shadow-2xl mb-4">
+            <img src="logo.png" alt="AbarroteXpress" class="h-16 w-auto" />
           </div>
-          <p class="text-slate-400 text-sm">Panel de administración de tu tienda</p>
+          <p class="text-slate-300 text-sm">Panel de administración de tu tienda</p>
         </div>
 
         <!-- Card -->

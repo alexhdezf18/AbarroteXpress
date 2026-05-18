@@ -21,13 +21,8 @@ const API = 'http://localhost:3000';
 
       <!-- SIDEBAR -->
       <aside class="w-64 bg-white dark:bg-slate-800 border-r border-slate-200 dark:border-slate-700 hidden md:flex flex-col shadow-sm z-10">
-        <div class="h-16 flex items-center px-6 border-b border-slate-100 dark:border-slate-700">
-          <div class="flex items-center gap-2 text-indigo-600 dark:text-indigo-400">
-            <svg class="w-8 h-8" fill="currentColor" viewBox="0 0 24 24">
-              <path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5" />
-            </svg>
-            <span class="text-xl font-bold text-slate-900 dark:text-white tracking-tight">AbarroteXpress</span>
-          </div>
+        <div class="h-20 flex items-center justify-center px-4 border-b border-slate-100 dark:border-slate-700">
+          <img src="logo.png" alt="AbarroteXpress" class="h-12 w-auto" />
         </div>
         <div class="p-4 flex-1">
           <p class="text-xs font-semibold text-slate-400 dark:text-slate-500 mb-4 tracking-wider">MENÚ PRINCIPAL</p>
