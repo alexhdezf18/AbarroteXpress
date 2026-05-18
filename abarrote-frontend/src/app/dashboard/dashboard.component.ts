@@ -245,10 +245,22 @@ const API = 'http://localhost:3000';
             <div class="bg-white dark:bg-slate-800 p-6 rounded-xl shadow-sm border border-slate-200 dark:border-slate-700 mb-6">
               <h2 class="text-lg font-bold text-slate-800 dark:text-white mb-4">Agregar al Catálogo</h2>
 
-              <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4">
-                <div>
+              <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-4">
+                <div class="lg:col-span-2">
                   <label class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">Nombre del Producto</label>
                   <input type="text" [(ngModel)]="nuevoProducto.nombre" class="w-full border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-700 text-slate-800 dark:text-slate-100 rounded-lg p-2.5 focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 outline-none transition-all text-sm placeholder-slate-400 dark:placeholder-slate-500" placeholder="Ej. Galletas Emperador" />
+                </div>
+                <div class="lg:col-span-2">
+                  <label class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">
+                    Categoría
+                    <span class="text-xs font-normal text-slate-400">(elige o escribe una nueva)</span>
+                  </label>
+                  <input type="text" [(ngModel)]="nuevoProducto.categoria" list="categorias-disponibles"
+                    class="w-full border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-700 text-slate-800 dark:text-slate-100 rounded-lg p-2.5 focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 outline-none transition-all text-sm"
+                    placeholder="Ej. Botanas, Refrescos, Limpieza..." />
+                  <datalist id="categorias-disponibles">
+                    <option *ngFor="let cat of categoriasDisponibles" [value]="cat"></option>
+                  </datalist>
                 </div>
                 <div>
                   <label class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">Precio ($)</label>
@@ -278,6 +290,12 @@ const API = 'http://localhost:3000';
                     {{ buscandoImagen ? 'Buscando...' : 'Auto-buscar' }}
                   </button>
                 </div>
+                <p class="text-xs text-slate-400 mt-1.5 flex items-center gap-1">
+                  <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                  </svg>
+                  Auto-buscar también completa nombre y categoría desde OpenFoodFacts
+                </p>
 
                 <div *ngIf="nuevoProducto.imagenUrl" class="mt-3 flex items-center gap-3 p-3 bg-slate-50 dark:bg-slate-700 rounded-lg border border-slate-200 dark:border-slate-600">
                   <img [src]="nuevoProducto.imagenUrl" class="h-14 w-14 object-contain rounded-lg bg-white dark:bg-slate-600 p-1 border border-slate-200 dark:border-slate-500" (error)="nuevoProducto.imagenUrl = ''" alt="preview" />
@@ -296,14 +314,33 @@ const API = 'http://localhost:3000';
               </button>
             </div>
 
-            <h2 class="text-lg font-bold text-slate-800 dark:text-white mb-4">
-              Productos Registrados
-              <span class="ml-2 text-sm font-normal text-slate-500 dark:text-slate-400">({{ productos.length }})</span>
-            </h2>
+            <div class="flex items-center justify-between mb-4">
+              <h2 class="text-lg font-bold text-slate-800 dark:text-white">
+                Productos Registrados
+                <span class="ml-2 text-sm font-normal text-slate-500 dark:text-slate-400">({{ productosFiltradosInventario().length }} de {{ productos.length }})</span>
+              </h2>
+            </div>
 
-            <div *ngIf="productos.length > 0" class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4">
+            <!-- Chips de categorías -->
+            <div *ngIf="productos.length > 0" class="flex flex-wrap gap-2 mb-5">
+              <button
+                (click)="categoriaFiltro = 'Todas'"
+                [ngClass]="categoriaFiltro === 'Todas' ? 'bg-indigo-600 text-white border-indigo-600' : 'bg-white dark:bg-slate-800 text-slate-600 dark:text-slate-300 border-slate-300 dark:border-slate-600 hover:border-indigo-400'"
+                class="px-3 py-1.5 rounded-full text-xs font-semibold border transition-all">
+                Todas <span class="ml-1 opacity-70">({{ productos.length }})</span>
+              </button>
+              <button
+                *ngFor="let cat of categoriasEnUso"
+                (click)="categoriaFiltro = cat"
+                [ngClass]="categoriaFiltro === cat ? 'bg-indigo-600 text-white border-indigo-600' : 'bg-white dark:bg-slate-800 text-slate-600 dark:text-slate-300 border-slate-300 dark:border-slate-600 hover:border-indigo-400'"
+                class="px-3 py-1.5 rounded-full text-xs font-semibold border transition-all">
+                {{ cat }} <span class="ml-1 opacity-70">({{ contarProductosPorCategoria(cat) }})</span>
+              </button>
+            </div>
+
+            <div *ngIf="productosFiltradosInventario().length > 0" class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4">
               <div
-                *ngFor="let prod of productos"
+                *ngFor="let prod of productosFiltradosInventario()"
                 [@fadeSlideInOut]
                 class="bg-white dark:bg-slate-800 rounded-xl shadow-sm border border-slate-200 dark:border-slate-700 overflow-hidden hover:shadow-md hover:-translate-y-0.5 transition-all group"
               >
@@ -328,6 +365,9 @@ const API = 'http://localhost:3000';
                   >{{ prod.stock }}</span>
                 </div>
                 <div class="p-3">
+                  <span *ngIf="prod.categoria" class="inline-block text-[10px] uppercase tracking-wide font-bold text-indigo-600 dark:text-indigo-400 bg-indigo-50 dark:bg-indigo-900/40 px-1.5 py-0.5 rounded mb-1">
+                    {{ prod.categoria }}
+                  </span>
                   <h3 class="text-sm font-semibold text-slate-800 dark:text-slate-100 truncate" [title]="prod.nombre">{{ prod.nombre }}</h3>
                   <div class="flex items-center justify-between mt-1.5">
                     <span class="text-base font-bold text-indigo-600 dark:text-indigo-400">\${{ prod.precio }}</span>
@@ -350,6 +390,10 @@ const API = 'http://localhost:3000';
               </svg>
               <h3 class="mt-2 text-sm font-semibold text-slate-900 dark:text-slate-100">Sin productos</h3>
               <p class="mt-1 text-sm text-slate-500 dark:text-slate-400">Agrega tu primer producto al catálogo.</p>
+            </div>
+
+            <div *ngIf="productos.length > 0 && productosFiltradosInventario().length === 0" class="bg-white dark:bg-slate-800 rounded-xl border border-dashed border-slate-300 dark:border-slate-600 p-8 text-center">
+              <p class="text-sm text-slate-500 dark:text-slate-400">No hay productos en la categoría <strong>{{ categoriaFiltro }}</strong>.</p>
             </div>
           </div>
 
@@ -422,6 +466,20 @@ const API = 'http://localhost:3000';
     ]),
   ],
 })
+const CATEGORIAS_PREDEFINIDAS = [
+  'Botanas',
+  'Galletas y panes',
+  'Refrescos',
+  'Jugos y aguas',
+  'Lácteos',
+  'Abarrotes secos',
+  'Limpieza',
+  'Cuidado personal',
+  'Dulces',
+  'Enlatados',
+  'Otros',
+];
+
 export class DashboardComponent implements OnInit {
   pestanaActual: 'pedidos' | 'inventario' | 'solicitudes' = 'pedidos';
   pedidos: any[] = [];
@@ -432,11 +490,14 @@ export class DashboardComponent implements OnInit {
   tiendaActual: any;
   esAdmin = false;
 
-  nuevoProducto: { nombre: string; precio: number | null; stock: number | null; imagenUrl: string } = {
+  categoriaFiltro: string = 'Todas';
+
+  nuevoProducto: { nombre: string; precio: number | null; stock: number | null; imagenUrl: string; categoria: string } = {
     nombre: '',
     precio: null,
     stock: null,
     imagenUrl: '',
+    categoria: '',
   };
 
   get iniciales(): string {
@@ -451,6 +512,40 @@ export class DashboardComponent implements OnInit {
 
   get ingresosTotales(): number {
     return this.pedidos.reduce((acc, pedido) => acc + Number(pedido.totalCosto), 0);
+  }
+
+  get categoriasEnUso(): string[] {
+    const set = new Set<string>(this.productos.map((p) => p.categoria).filter(Boolean));
+    return Array.from(set).sort((a, b) => a.localeCompare(b));
+  }
+
+  get categoriasDisponibles(): string[] {
+    const set = new Set<string>([...CATEGORIAS_PREDEFINIDAS, ...this.categoriasEnUso]);
+    return Array.from(set);
+  }
+
+  productosFiltradosInventario(): any[] {
+    if (this.categoriaFiltro === 'Todas') return this.productos;
+    return this.productos.filter((p) => p.categoria === this.categoriaFiltro);
+  }
+
+  contarProductosPorCategoria(categoria: string): number {
+    return this.productos.filter((p) => p.categoria === categoria).length;
+  }
+
+  private mapearCategoriaDesdeOpenFoodFacts(textoCategorias: string): string {
+    const t = (textoCategorias || '').toLowerCase();
+    if (/snack|chip|crisp|potato|botana|frituras?/.test(t)) return 'Botanas';
+    if (/biscuit|cookie|galleta|bread\b|pan(es)?\b|pastel|bollo/.test(t)) return 'Galletas y panes';
+    if (/soda|cola|carbonated|refresco/.test(t)) return 'Refrescos';
+    if (/juice|jugo|water\b|agua\b|n[eé]ctar/.test(t)) return 'Jugos y aguas';
+    if (/dairy|milk|leche|cheese|queso|yogur|yogurt|crema/.test(t)) return 'Lácteos';
+    if (/rice|arroz|bean|frijol|sugar|az[uú]car|flour|harina|cereal|pasta|aceite|sal\b/.test(t)) return 'Abarrotes secos';
+    if (/cleaning|detergent|soap|jab[oó]n|limpieza|cloro|desinfectante/.test(t)) return 'Limpieza';
+    if (/shampoo|toothpaste|hygiene|pasta dental|higiene|cepillo|desodorante/.test(t)) return 'Cuidado personal';
+    if (/candy|chocolate|dulce|caramelo|paleta|chicle/.test(t)) return 'Dulces';
+    if (/canned|enlatad|at[uú]n|sardina|conserva/.test(t)) return 'Enlatados';
+    return 'Otros';
   }
 
   constructor(
@@ -497,12 +592,22 @@ export class DashboardComponent implements OnInit {
     try {
       const termino = encodeURIComponent(this.nuevoProducto.nombre.trim());
       const resp = await fetch(
-        `https://world.openfoodfacts.org/cgi/search.pl?search_terms=${termino}&action=process&json=1&page_size=5&fields=image_url,image_front_url`,
+        `https://world.openfoodfacts.org/cgi/search.pl?search_terms=${termino}&action=process&json=1&page_size=5&fields=product_name,image_url,image_front_url,categories,categories_tags`,
       );
       const datos = await resp.json();
       const encontrado = datos.products?.find((p: any) => p.image_url || p.image_front_url);
       if (encontrado) {
         this.nuevoProducto.imagenUrl = encontrado.image_url || encontrado.image_front_url;
+
+        if (encontrado.product_name && encontrado.product_name.trim().length > 0) {
+          this.nuevoProducto.nombre = encontrado.product_name;
+        }
+
+        if (!this.nuevoProducto.categoria) {
+          const textoCategorias =
+            encontrado.categories || (encontrado.categories_tags || []).join(',');
+          this.nuevoProducto.categoria = this.mapearCategoriaDesdeOpenFoodFacts(textoCategorias);
+        }
       }
     } catch {
       // falla silenciosamente si no hay conexión
@@ -554,9 +659,13 @@ export class DashboardComponent implements OnInit {
 
   guardarProducto() {
     if (!this.nuevoProducto.nombre || !this.nuevoProducto.precio) return;
-    this.productosService.crearProducto(this.nuevoProducto).subscribe((res) => {
+    const payload = {
+      ...this.nuevoProducto,
+      categoria: (this.nuevoProducto.categoria || 'Otros').trim(),
+    };
+    this.productosService.crearProducto(payload).subscribe((res) => {
       this.productos.unshift(res);
-      this.nuevoProducto = { nombre: '', precio: null, stock: null, imagenUrl: '' };
+      this.nuevoProducto = { nombre: '', precio: null, stock: null, imagenUrl: '', categoria: '' };
     });
   }
 }
